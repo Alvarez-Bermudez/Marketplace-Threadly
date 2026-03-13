@@ -1,15 +1,16 @@
 import { Navigate } from "react-router-dom"
+import { getUserRole } from "../features/auth/api"
 
-export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+export default function ProtectedAdminRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token")
 
   if (!token) {
     return <Navigate to={"/login"} />
   }
 
-  const userRole = JSON.parse(atob(token.split(".")[1])).role
+  const userRole = getUserRole()
 
-  if (userRole === "admin") {
+  if (userRole === "ADMIN") {
     return children
   }
 

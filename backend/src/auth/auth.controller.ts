@@ -5,9 +5,6 @@ import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { RequestUser } from './types/request-user.type';
-import { RolesGuard } from './guards/roles.guard';
-import { Roles } from './decorators/roles.decorator';
-import { Role } from './enums/roles.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -24,8 +21,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard('jwt'))
   me(@CurrentUser() user: RequestUser) {
     return this.authService.me(user.userId);
   }

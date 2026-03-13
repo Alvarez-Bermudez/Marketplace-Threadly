@@ -25,7 +25,7 @@ const LoginPage = () => {
     onSuccess: () => {
       navigate("/")
     },
-    onError: (e) => {
+    onError: () => {
       setLoginError("Failed to sign in")
     },
   })
