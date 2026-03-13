@@ -23,22 +23,19 @@ export class BrandsController {
   @Post('admin/brands')
   @UseInterceptors(
     FileInterceptor('photoData', {
-      // storage: diskStorage({
-      //   destination: './public/images/brands',
-      //   filename: (req, file, callback) => {
-      //     const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      //     callback(null, uniqueName + extname(file.originalname));
-      //   },
-      // }),
+      storage: diskStorage({
+        destination: './public/images/brands',
+        filename: (req, file, callback) => {
+          const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          callback(null, uniqueName + extname(file.originalname));
+        },
+      }),
     }),
   )
   async createBrand(
     @Body('name') name: string,
-    // @Body('photoDatas') photo: any,
-    @UploadedFile() photoData: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    console.log(JSON.stringify(photoData, null, 2));
-    return;
-    // return this.brandsService.createBrand(name, file.filename);
+    return this.brandsService.createBrand(name, file.filename);
   }
 }

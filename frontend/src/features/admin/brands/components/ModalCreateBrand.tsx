@@ -7,11 +7,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { createBrand } from "../api"
 import { queryClient } from "../../../../lib/queryClient"
-import { api } from "../../../../api/client"
 
 const ModalCreateBrand = () => {
   const modalRef = useRef<HTMLDialogElement>(null)
-
+  const formRef = useRef<HTMLFormElement>(null)
   const {
     register,
     handleSubmit,
@@ -21,55 +20,44 @@ const ModalCreateBrand = () => {
   })
 
   const mutation = useMutation({
-    mutationFn: createBrand,
+    mutationFn: async (data: CreateBrandInput) => {
+      const formData = new FormData()
+      formData.append("name", data.name)
+
+      if (data.photoData && data.photoData.length > 0) {
+        formData.append("photoData", data.photoData[0]) // FileList → File
+      }
+
+      return createBrand(formData)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["brands"] })
-      modalRef.current?.close()
+      if (modalRef.current) {
+        modalRef.current.close()
+      }
+
+      if (formRef.current) {
+        formRef.current.reset()
+      }
     },
   })
 
   const showModal = () => {
-    if (modalRef) {
-      modalRef.current?.showModal()
+    if (modalRef.current) {
+      modalRef.current.showModal()
     }
   }
 
   const handleCancel = () => {
-    if (modalRef) {
-      modalRef.current?.close()
+    if (formRef.current) {
+      formRef.current.reset()
+    }
+    if (modalRef.current) {
+      modalRef.current.close()
     }
   }
 
-  //   const onSubmit = async (data: CreateBrandInput) => {
-  //     const file = data.photoData?.[0]
-  //     const name = data.name
-
-  //     console.log("file to upload", file)
-  //     mutation.mutate({ name, photoData: file })
-  //   }
-
-  const onSubmit = (data: CreateBrandInput) => {
-    const formData = new FormData()
-    formData.append("name", data.name)
-    formData.append("photoData", data.photoData[0]) // FileList → single File
-
-    api.post("/admin/brands", formData)
-  }
-
-  //   async function uploadProduct(name: string, photoData: any) {
-  //     const formData = new FormData()
-
-  //     formData.append("name", name)
-  //     formData.append("photoData", photoData)
-
-  //     const response = await fetch("http://localhost:3000/products", {
-  //       method: "POST",
-  //       body: formData,
-  //     })
-
-  //     const data = await response.json()
-  //     console.log(data)
-  //   }
+  const onSubmit = (data: CreateBrandInput) => mutation.mutate(data)
 
   return (
     <>
@@ -84,7 +72,7 @@ const ModalCreateBrand = () => {
         <div className="modal-box">
           <h3 className="font-bold text-lg">Create brand</h3>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-5 px-3 py-5">
+          <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-5 px-3 py-5">
             <div className="flex flex-col gap-2 w-full">
               <label htmlFor="name" className="text-neutral-900 inter-400 text-sm">
                 Name:
@@ -107,7 +95,7 @@ const ModalCreateBrand = () => {
                   Cancel
                 </button>
                 <button
-                  className="px-3 py-2.5 bg-primary-500 inter-500 rounded-sm hover:opacity-75 transition-all duration-300"
+                  className="px-3 py-2.5 bg-primary-500 text-white inter-500 rounded-sm hover:opacity-75 transition-all duration-300"
                   type="submit"
                 >
                   Accept
