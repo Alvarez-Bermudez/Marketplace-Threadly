@@ -12,7 +12,7 @@ const AdminHeader = () => {
   const name = user?.name.split(" ")[0]
 
   return (
-    <header className="flex p-2.5 justify-between items-center border border-neutral-200">
+    <header className="flex p-2.5 justify-between items-center border-b border-neutral-200">
       <img src={imgBrand} width={107} height={32} />
 
       <div className="flex gap-5 items-center">
