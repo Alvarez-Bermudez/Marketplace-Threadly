@@ -8,3 +8,11 @@ export const createBrandSchema = z.object({
 })
 
 export type CreateBrandInput = z.infer<typeof createBrandSchema>
+
+export interface Brand {
+  id: string
+  name: string
+  imageUrl: string
+}
+
+export type Brands = Brand[]

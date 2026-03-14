@@ -13,7 +13,7 @@ export class BrandsService {
   }
 
   async createBrand(name: string, filename: string) {
-    const photoUrl = `/public/images/brand/${filename}`;
+    const photoUrl = `/public/images/brands/${filename}`;
 
     try {
       const brand = this.prisma.brand.create({

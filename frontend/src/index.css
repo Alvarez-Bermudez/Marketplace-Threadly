@@ -25,7 +25,9 @@
   --color-accent-500: #F9988E;
   --color-accent-900: #ED776C;
 
+  --color-danger-050: #FDD3D3;
   --color-danger-200: #FB8888;
+  --color-danger-500: #FE5D5D;
 
 }
 @layer base {
