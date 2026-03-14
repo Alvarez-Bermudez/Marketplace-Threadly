@@ -1,12 +1,14 @@
-import React from "react"
 import type { Brand } from "../types"
 import { BASE_URL } from "../../../../api/client"
 import { Pencil, Trash } from "lucide-react"
 
 interface CardBrandProps {
   brand: Brand
+  onEdit: () => void
+  onDelete: () => void
 }
-const CardBrand = ({ brand }: CardBrandProps) => {
+
+const CardBrand = ({ brand, onEdit, onDelete }: CardBrandProps) => {
   return (
     <div
       key={brand.id}
@@ -17,11 +19,17 @@ const CardBrand = ({ brand }: CardBrandProps) => {
         <p className="inter-500 text-neutral-900">{brand.name}</p>
       </div>
       <div className="w-full flex justify-end items-center gap-2">
-        <button className="flex justify-center items-center px-2 py-1 gap-1 rounded-sm border border-neutral-200 hover:bg-neutral-100 transition-all duration-300 cursor-pointer">
+        <button
+          onClick={onEdit}
+          className="flex justify-center items-center px-2 py-1 gap-1 rounded-sm border border-neutral-200 hover:bg-neutral-100 transition-all duration-300 cursor-pointer"
+        >
           <Pencil size={20} className="text-neutral-800" />
           <span className="text-sm inter-500 text-neutral-900">Edit</span>
         </button>
-        <button className="flex justify-center items-center px-2 py-1 gap-1 rounded-sm border border-danger-200 hover:bg-danger-050 transition-all duration-300 cursor-pointer">
+        <button
+          onClick={onDelete}
+          className="flex justify-center items-center px-2 py-1 gap-1 rounded-sm border border-danger-200 hover:bg-danger-050 transition-all duration-300 cursor-pointer"
+        >
           <Trash size={20} className="text-danger-500" />
           <span className="text-sm inter-500 text-danger-500">Remove</span>
         </button>

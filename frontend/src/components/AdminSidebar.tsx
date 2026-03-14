@@ -88,7 +88,7 @@ const AdminSidebar = () => {
       <div className="gap-10 py-7 flex flex-col ">
         <div className="flex flex-col">
           {links.primary.map((link) => (
-            <Link to={link.href}>
+            <Link key={link.id} to={link.href}>
               <div
                 className={`flex px-3.5 py-3 gap-1.5 items-center cursor-pointer hover:bg-neutral-100 transition-all duration-300 ${currentPath === link.href ? "bg-neutral-100" : ""}`}
               >
@@ -105,7 +105,7 @@ const AdminSidebar = () => {
 
         <div className="flex flex-col">
           {links.secondary.map((link) => (
-            <Link to={link.href}>
+            <Link key={link.id} to={link.href}>
               <div
                 className={`flex px-3.5 py-3 gap-1.5 items-center cursor-pointer hover:bg-neutral-100 transition-all duration-300 ${currentPath === link.href ? "bg-neutral-100" : ""}`}
               >
@@ -124,7 +124,7 @@ const AdminSidebar = () => {
       <div className="py-2">
         <div className="flex flex-col">
           {links.settings.map((link) => (
-            <Link to={link.href}>
+            <Link key={link.id} to={link.href}>
               <div
                 className={`flex px-3.5 py-3 gap-1.5 items-center cursor-pointer hover:bg-neutral-100 transition-all duration-300 ${currentPath === link.href ? "bg-neutral-100" : ""}`}
               >
