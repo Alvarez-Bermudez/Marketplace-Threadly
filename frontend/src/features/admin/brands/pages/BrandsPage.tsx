@@ -6,6 +6,7 @@ import { getBrands } from "../api"
 import CardBrand from "../components/CardBrand"
 import { useState } from "react"
 import ModalEditBrand from "../components/ModalEditBrand"
+import ModalDeleteBrand from "../components/ModalRemoveBrand"
 
 const BrandsPage = () => {
   const [page, setPage] = useState<number>(1)
@@ -72,6 +73,7 @@ const BrandsPage = () => {
       </div>
 
       <ModalEditBrand brandId={selectedBrandId} isOpen={isEditOpen} setIsOpen={setIsEditOpen} />
+      <ModalDeleteBrand brandId={selectedBrandId} isOpen={isDeleteOpen} setIsOpen={setIsDeleteOpen} />
     </>
   )
 }

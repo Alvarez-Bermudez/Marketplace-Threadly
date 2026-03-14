@@ -92,4 +92,14 @@ export class BrandsService {
       }
     }
   }
+
+  async delete(id: string) {
+    try {
+      const brand = await this.prisma.brand.delete({ where: { id } });
+
+      return brand;
+    } catch {
+      throw new InternalServerErrorException('Failed to delete brand');
+    }
+  }
 }

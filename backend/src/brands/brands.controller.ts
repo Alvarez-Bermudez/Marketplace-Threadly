@@ -1,12 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { BrandsService } from './brands.service';
@@ -14,6 +16,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
 import { GetBrandsQueryDto } from './dto/get-brands-query.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from 'src/auth/enums/roles.enum';
 
 @Controller('')
 export class BrandsController {
@@ -30,6 +36,8 @@ export class BrandsController {
   }
 
   @Post('admin/brands')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
   @UseInterceptors(
     FileInterceptor('photoData', {
       storage: diskStorage({
@@ -49,6 +57,8 @@ export class BrandsController {
   }
 
   @Patch('admin/brands/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
   @UseInterceptors(
     FileInterceptor('photoData', {
       storage: diskStorage({
@@ -68,5 +78,12 @@ export class BrandsController {
     const _file = file ? file.filename : undefined;
 
     return this.brandsService.updateOne(id, name, _file);
+  }
+
+  @Delete('admin/brands/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
+  async deleteOne(@Param('id') id: string) {
+    return this.brandsService.delete(id);
   }
 }

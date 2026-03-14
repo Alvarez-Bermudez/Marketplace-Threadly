@@ -1,4 +1,3 @@
-import { Plus } from "lucide-react"
 import { useEffect, useRef, type Dispatch, type SetStateAction } from "react"
 import { useForm } from "react-hook-form"
 import { type UpdateBrandInput, updateBrandSchema } from "../types"
@@ -93,13 +92,6 @@ const ModalEditBrand = ({ brandId, isOpen, setIsOpen }: ModalEditBrandProps) => 
 
   return (
     <>
-      <button
-        className="fixed right-5 bottom-5 inter-400 text-sm text-white px-4 py-3 gap-1.5 flex items-center justify-end rounded-full bg-primary-700 shadow-md hover:opacity-75 transition-all duration-300"
-        onClick={showModal}
-      >
-        Add brand
-        <Plus size={20} color="white" />
-      </button>
       <dialog ref={modalRef} className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Updated brand</h3>

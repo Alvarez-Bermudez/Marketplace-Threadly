@@ -34,3 +34,9 @@ export async function updateBrand(id: string, data: FormData) {
   const res = await api.patch(`/admin/brands/${id}`, data)
   return res.data
 }
+
+export async function deleteBrand(id: string) {
+  const res = await api.delete(`/admin/brands/${id}`)
+
+  return res.data
+}
