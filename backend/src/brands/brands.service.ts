@@ -6,10 +6,24 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class BrandsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
-    const brands = await this.prisma.brand.findMany();
+  async findAll(page?: number, limit?: number, brand?: string) {
+    const where = brand ? { name: { contains: brand } } : {};
+    const skip = limit && page ? (page - 1) * limit : undefined;
+    const take = limit && page ? limit : undefined;
 
-    return brands;
+    const brands = await this.prisma.brand.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { name: 'asc' },
+    });
+
+    const total = await this.prisma.brand.count({ where });
+
+    return {
+      data: brands,
+      meta: { total, page, lastPage: limit ? Math.ceil(total / limit) : 1 },
+    };
   }
 
   async createBrand(name: string, filename: string) {
