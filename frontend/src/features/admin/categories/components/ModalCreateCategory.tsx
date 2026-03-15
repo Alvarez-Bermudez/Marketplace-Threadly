@@ -96,7 +96,7 @@ const ModalCreateCategory = () => {
             </div>
 
             <div className="w-full flex justify-center">
-              {errorSubmit && <p className="text-sm text-danger-500">Failed to edit category</p>}
+              {errorSubmit && <p className="text-sm text-danger-500">Failed to create category</p>}
             </div>
           </form>
         </div>

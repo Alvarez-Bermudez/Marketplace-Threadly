@@ -9,22 +9,22 @@ interface TableCategoriesProps {
 }
 const TableCategories = ({ categories, handleEdit, handleDelete }: TableCategoriesProps) => {
   return (
-    <div className="overflow-x-auto">
+    <div className="flex-1 h-full overflow-x-auto overflow-visible">
       <table className="table">
         <thead>
           <tr>
             <th>Name</th>
-            <th>Products Quantity</th>
-            <th>Actions</th>
+            <th className="text-center">Products Quantity</th>
+            <th className="text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
           {categories &&
             categories.map((categ) => (
-              <tr key={categ.id}>
-                <td>{categ.name}</td>
-                <td>{categ.productsQuantity.products}</td>
-                <td>
+              <tr key={categ.id} className="hover-transition">
+                <td className="inter-400 text-neutral-900">{categ.name}</td>
+                <td className="text-center inter-400 text-neutral-900">{categ.productsQuantity.products}</td>
+                <td className="text-center">
                   <Menu id={categ.id} handleDelete={handleDelete} handleEdit={handleEdit} />
                 </td>
               </tr>
@@ -57,10 +57,10 @@ const Menu = ({ id, handleEdit, handleDelete }: MenuProps) => {
   return (
     <>
       <button onClick={showMenu}>
-        <MoreHorizontal />
+        <MoreHorizontal className="text-nuetral-900" />
       </button>
       {visible && (
-        <ul className="-translate-x-full absolute menu menu-vertical bg-base-200 rounded-box">
+        <ul className="z-10 -translate-x-full absolute menu menu-vertical bg-base-200 rounded-box">
           <li>
             <button onClick={onEdit}>Edit</button>
           </li>
