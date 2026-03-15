@@ -49,13 +49,12 @@ const ModalDeleteBrand = ({ brandId, isOpen, setIsOpen }: ModalDeleteBrandProps)
     <>
       <dialog ref={modalRef} className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">Updated brand</h3>
+          <h3 className="font-bold text-lg">Remove brand</h3>
 
           <form className="w-full flex flex-col gap-5 px-3 py-5">
-            <p className="text-sm text-neutral-900 inter-400">Are you sure you want to delete this brand?</p>
+            <p className="text-sm text-neutral-900 inter-400">Are you sure you want to remove this brand?</p>
 
             <div className="modal-action">
-              {/* if there is a button in form, it will close the modal */}
               <div className="flex gap-2">
                 <button
                   className="px-3 py-2.5 border border-neutral-200 inter-500 rounded-sm hover:bg-neutral-050 transition-all duration-300"

@@ -86,7 +86,6 @@ const ModalCreateBrand = () => {
               {errors.photoData && <p className="text-danger-200">{errors.photoData.message?.toString()}</p>}
             </div>
             <div className="modal-action">
-              {/* if there is a button in form, it will close the modal */}
               <div className="flex gap-2">
                 <button
                   className="px-3 py-2.5 border border-neutral-200 inter-500 rounded-sm hover:bg-neutral-050 transition-all duration-300"

@@ -1,33 +1,34 @@
 import { useQuery } from "@tanstack/react-query"
 import AdminSidebar from "../../../../components/AdminSidebar"
 import Searchbar from "../../../../components/Searchbar"
-import ModalCreateBrand from "../components/ModalCreateBrand"
-import { getBrands } from "../api"
-import CardBrand from "../components/CardBrand"
-import { useState } from "react"
-import ModalEditBrand from "../components/ModalEditBrand"
-import ModalDeleteBrand from "../components/ModalDeleteBrand"
 
-const BrandsPage = () => {
+import { useState } from "react"
+import ModalEditCategory from "../components/ModalEditCategory"
+import ModalDeleteCategory from "../components/ModalDeleteCategory"
+import TableCategories from "../components/TableCategories"
+import ModalCreateCategory from "../components/ModalCreateCategory"
+import { getCategories } from "../api"
+
+const CategoriesPage = () => {
   const [page, setPage] = useState<number>(1)
   const [search, setSearch] = useState<string>("")
 
-  const [selectedBrandId, setSelectedBrandId] = useState<string>("")
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("")
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
   const { data } = useQuery({
-    queryKey: ["brands", page, search],
-    queryFn: () => getBrands(page, 8, search),
+    queryKey: ["categories", page, search],
+    queryFn: () => getCategories(page, 10, search),
   })
 
   const handleEdit = (brandId: string) => {
-    setSelectedBrandId(brandId)
+    setSelectedCategoryId(brandId)
     setIsEditOpen(true)
   }
 
   const handleDelete = (brandId: string) => {
-    setSelectedBrandId(brandId)
+    setSelectedCategoryId(brandId)
     setIsDeleteOpen(true)
   }
 
@@ -35,23 +36,16 @@ const BrandsPage = () => {
     <>
       <div className="h-full flex-1 flex flex-col">
         <div className="p-2.5 flex justify-end border-b border-neutral-200">
-          <Searchbar search={search} setSearch={setSearch} placeholder="Search brand..." />
+          <Searchbar search={search} setSearch={setSearch} placeholder="Search category..." />
         </div>
         <div className="flex flex-row flex-1">
           <AdminSidebar />
           <div className="flex-1 flex flex-col">
             <div className=" flex-1 ">
-              <div className="items-stretch flex flex-wrap p-7.5 gap-8 justify-start">
-                {data?.data &&
-                  data.data.map((brand) => (
-                    <CardBrand
-                      brand={brand}
-                      onEdit={() => handleEdit(brand.id)}
-                      onDelete={() => handleDelete(brand.id)}
-                    />
-                  ))}
-              </div>
+              <TableCategories categories={data?.data} handleEdit={handleEdit} handleDelete={handleDelete} />
             </div>
+
+            {/* Pagination */}
             <div className="w-full p-4">
               <div className="join">
                 <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="join-item btn">
@@ -68,14 +62,14 @@ const BrandsPage = () => {
               </div>
             </div>
           </div>
-          <ModalCreateBrand />
+          <ModalCreateCategory />
         </div>
       </div>
 
-      <ModalEditBrand brandId={selectedBrandId} isOpen={isEditOpen} setIsOpen={setIsEditOpen} />
-      <ModalDeleteBrand brandId={selectedBrandId} isOpen={isDeleteOpen} setIsOpen={setIsDeleteOpen} />
+      <ModalEditCategory categoryId={selectedCategoryId} isOpen={isEditOpen} setIsOpen={setIsEditOpen} />
+      <ModalDeleteCategory categoryId={selectedCategoryId} isOpen={isDeleteOpen} setIsOpen={setIsDeleteOpen} />
     </>
   )
 }
 
-export default BrandsPage
+export default CategoriesPage

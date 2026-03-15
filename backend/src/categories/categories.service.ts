@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { Prisma } from 'generated/prisma';
@@ -8,15 +12,61 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    const categories = this.prisma.category.findMany();
-    return categories;
+  async findAll(page?: number, limit?: number, search?: string) {
+    try {
+      const where = search ? { name: { contains: search } } : {};
+      const skip = limit && page ? (page - 1) * limit : undefined;
+      const take = limit && page ? limit : undefined;
+
+      const categories = await this.prisma.category.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { name: 'asc' },
+        include: {
+          _count: {
+            select: { products: true },
+          },
+        },
+      });
+
+      const total = await this.prisma.category.count({ where });
+
+      const _categories = categories.map((categ) => ({
+        id: categ.id,
+        name: categ.name,
+        productsQuantity: categ._count,
+      }));
+
+      return {
+        data: _categories,
+        meta: { total, page, lastPage: limit ? Math.ceil(total / limit) : 1 },
+      };
+    } catch {
+      throw new InternalServerErrorException('Failed to find categories');
+    }
+  }
+
+  async findOne(id: string) {
+    try {
+      const category = await this.prisma.category.findUnique({ where: { id } });
+
+      if (!category) throw new NotFoundException('Category not found!');
+
+      return category;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Failed to find category');
+    }
   }
 
   //Only admin
-  create(createCategoryDto: CreateCategoryDto) {
+  async create(createCategoryDto: CreateCategoryDto) {
     try {
-      const category = this.prisma.category.create({
+      const category = await this.prisma.category.create({
         data: createCategoryDto,
       });
 
@@ -32,9 +82,9 @@ export class CategoriesService {
   }
 
   //Only admin
-  updateOne(id: string, updateCategoryDto: UpdateCategoryDto) {
+  async updateOne(id: string, updateCategoryDto: UpdateCategoryDto) {
     try {
-      const category = this.prisma.category.update({
+      const category = await this.prisma.category.update({
         where: { id },
         data: updateCategoryDto,
       });
@@ -47,6 +97,24 @@ export class CategoriesService {
         }
       }
       throw new InternalServerErrorException('Failed to update category');
+    }
+  }
+
+  async delete(id: string) {
+    try {
+      const category = await this.prisma.category.delete({ where: { id } });
+
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+
+      return category;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Failed to delete category');
     }
   }
 }
