@@ -24,7 +24,6 @@ export class CategoriesController {
 
   @Get('categories')
   findAll(@Query() query: GetCategoriesQueryDto) {
-    console.log('Requested');
     return this.categoriesService.findAll(
       query.page,
       query.limit,

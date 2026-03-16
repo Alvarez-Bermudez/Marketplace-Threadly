@@ -41,7 +41,7 @@ const CategoriesPage = () => {
         <div className="flex flex-row flex-1">
           <AdminSidebar />
           <div className="flex-1 flex flex-col">
-            <div className="flex-1 ">
+            <div className="flex-1 p-3 ">
               <TableCategories categories={data?.data} handleEdit={handleEdit} handleDelete={handleDelete} />
             </div>
 
