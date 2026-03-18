@@ -60,7 +60,7 @@ pnpm dev
 ```
 
 ## Design
-Open the folder "design-Lunacy". This folder contains the design file. Open it with Lunacy app
+Open the folder "design-Lunacy". This folder contains the design file. Open with Lunacy app
 
 ## Screenshots
 ![Screenshot 1](screenshots/admin-brands.png)
