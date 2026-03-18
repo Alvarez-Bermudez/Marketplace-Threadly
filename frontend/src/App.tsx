@@ -5,6 +5,7 @@ import AdminLayout from "./components/AdminLayout"
 import CategoriesPage from "./features/admin/categories/pages/CategoriesPage"
 import CustomersPage from "./features/admin/customers/pages/CustomersPage"
 import CustomerPage from "./features/admin/customers/pages/CustomerPage"
+import AddProductPage from "./features/admin/products/pages/AddProductPage"
 
 function App() {
   return (
@@ -39,6 +40,15 @@ function App() {
         element={
           <AdminLayout>
             <CustomerPage />
+          </AdminLayout>
+        }
+      />
+
+      <Route
+        path="/admin/products/create"
+        element={
+          <AdminLayout>
+            <AddProductPage />
           </AdminLayout>
         }
       />
