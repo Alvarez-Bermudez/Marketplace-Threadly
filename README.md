@@ -1,4 +1,5 @@
 # Threadly
+![Status](https://img.shields.io/badge/status-active%20development-orange)
 
 A modern clothing marketplace web application designed to provide users with a seamless and intuitive shopping experience. Threadly allows users to browse, filter, and discover fashion products efficiently while offering a clean and responsive interface.
 
