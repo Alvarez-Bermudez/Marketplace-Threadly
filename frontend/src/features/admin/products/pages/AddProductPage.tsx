@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import AdminSidebar from "../../../../components/AdminSidebar"
 import Searchbar from "../../../../components/Searchbar"
 
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react"
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react"
 import { Link } from "react-router-dom"
 import { getBrands } from "../../brands/api"
 import { BASE_URL } from "../../../../api/client"
@@ -231,23 +231,28 @@ const DropdownProductTypes = ({ productTypes }: { productTypes: ProductTypeRespo
   const [selectedId, setSelectedId] = useState<string>()
   const [selectedName, setSelectedName] = useState<string>()
 
-  const buttonRef = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(true)
+
+  const open = () => {
+    setVisible(true)
+  }
+  const close = () => {
+    setVisible(false)
+  }
 
   const handleClick = (type: ProductTypeResponse) => {
     setSelectedName(type.name)
     setSelectedId(type.id)
 
-    if (buttonRef.current) {
-      buttonRef.current.click()
-    }
+    close()
   }
 
   return (
-    <div className="dropdown">
-      <div ref={buttonRef} tabIndex={0} role="button" className="btn m-1 w-full min-w-52 inter-500">
+    <details className="dropdown" open={visible}>
+      <summary className="btn m-1 w-full min-w-52 inter-500" onClick={open}>
         {!selectedName ? "Click to select Type" : selectedName}
-      </div>
-      <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+      </summary>
+      <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
         {productTypes &&
           productTypes.map((type) => (
             <li key={type.id} onClick={() => handleClick(type)}>
@@ -257,7 +262,7 @@ const DropdownProductTypes = ({ productTypes }: { productTypes: ProductTypeRespo
             </li>
           ))}
       </ul>
-    </div>
+    </details>
   )
 }
 
@@ -266,23 +271,28 @@ const DropdownCategory = ({ categories }: { categories: CategoryResponse[] | und
   const [selectedId, setSelectedId] = useState<string>()
   const [selectedName, setSelectedName] = useState<string>()
 
-  const buttonRef = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(true)
+
+  const open = () => {
+    setVisible(true)
+  }
+  const close = () => {
+    setVisible(false)
+  }
 
   const handleClick = (categ: CategoryResponse) => {
     setSelectedName(categ.name)
     setSelectedId(categ.id)
 
-    if (buttonRef.current) {
-      buttonRef.current.click()
-    }
+    close()
   }
 
   return (
-    <div className="dropdown">
-      <div ref={buttonRef} tabIndex={0} role="button" className="btn m-1 w-full min-w-52 inter-500">
+    <details className="dropdown" open={visible}>
+      <summary className="btn m-1 w-full min-w-52 inter-500" onClick={open}>
         {!selectedName ? "Click to select Category" : selectedName}
-      </div>
-      <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+      </summary>
+      <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
         {categories &&
           categories.map((categ) => (
             <li key={categ.id} onClick={() => handleClick(categ)}>
@@ -292,7 +302,7 @@ const DropdownCategory = ({ categories }: { categories: CategoryResponse[] | und
             </li>
           ))}
       </ul>
-    </div>
+    </details>
   )
 }
 
@@ -302,37 +312,44 @@ const DropwdownBrand = ({ brands }: { brands: Brands | undefined }) => {
   const [selectedName, setSelectedName] = useState<string>()
   const [selectedImgUri, setSelectedImgUri] = useState<string>()
 
-  const buttonRef = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(true)
+
+  const open = () => {
+    setVisible(true)
+  }
+  const close = () => {
+    setVisible(false)
+  }
 
   const handleClick = (brand: Brand) => {
     setSelectedName(brand.name)
     setSelectedId(brand.id)
     setSelectedImgUri(brand.imageUrl)
 
-    if (buttonRef.current) {
-      buttonRef.current.click()
-    }
+    close()
   }
   return (
-    <div className="dropdown">
-      <div ref={buttonRef} tabIndex={0} role="button" className="btn m-1 w-full min-w-52  inter-500 flex gap-1.5 ">
-        {selectedImgUri && <img src={`${BASE_URL}${selectedImgUri}`} width={20} />}
-        {!selectedName ? "Click to select Brand" : selectedName}
-      </div>
-      <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
-        {brands &&
-          brands.map((brand) => (
-            <li key={brand.id} onClick={() => handleClick(brand)}>
-              <a>
-                <div className="flex gap-1.5">
-                  <img src={`${BASE_URL}${brand.imageUrl}`} width={20} />
-                  {brand.name}
-                </div>
-              </a>
-            </li>
-          ))}
-      </ul>
-    </div>
+    <>
+      <details className="dropdown" open={visible}>
+        <summary className="btn m-1 w-full min-w-52 inter-500 flex gap-1.5" onClick={open}>
+          {selectedImgUri && <img src={`${BASE_URL}${selectedImgUri}`} width={20} />}
+          {!selectedName ? "Click to select Brand" : selectedName}
+        </summary>
+        <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+          {brands &&
+            brands.map((brand) => (
+              <li key={brand.id} onClick={() => handleClick(brand)}>
+                <a>
+                  <div className="flex gap-1.5">
+                    <img src={`${BASE_URL}${brand.imageUrl}`} width={20} />
+                    {brand.name}
+                  </div>
+                </a>
+              </li>
+            ))}
+        </ul>
+      </details>
+    </>
   )
 }
 
