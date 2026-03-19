@@ -1,13 +1,14 @@
 import { Plus } from "lucide-react"
 import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
-import { type CreateCategoryInput, createCategorySchema } from "../types"
+import { type CreateProductTypeInput, createProductTypeSchema } from "../types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { createCategory } from "../api"
 import { queryClient } from "../../../../lib/queryClient"
+import { createProductType } from "../api"
 
-const ModalCreateCategory = () => {
+//Remember this component contains the create button and the related modal
+const ModalCreateProductType = () => {
   const modalRef = useRef<HTMLDialogElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const [errorSubmit, setErrorSubmit] = useState<string>("")
@@ -16,14 +17,14 @@ const ModalCreateCategory = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateCategoryInput>({
-    resolver: zodResolver(createCategorySchema),
+  } = useForm<CreateProductTypeInput>({
+    resolver: zodResolver(createProductTypeSchema),
   })
 
   const mutation = useMutation({
-    mutationFn: createCategory,
+    mutationFn: createProductType,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] })
+      queryClient.invalidateQueries({ queryKey: ["product-types"] })
 
       if (modalRef.current) {
         modalRef.current.close()
@@ -34,7 +35,7 @@ const ModalCreateCategory = () => {
       }
     },
     onError: () => {
-      setErrorSubmit("Failed to create category")
+      setErrorSubmit("Failed to create product type")
     },
   })
 
@@ -54,7 +55,7 @@ const ModalCreateCategory = () => {
     setErrorSubmit("")
   }
 
-  const onSubmit = (data: CreateCategoryInput) => mutation.mutate(data)
+  const onSubmit = (data: CreateProductTypeInput) => mutation.mutate(data)
 
   return (
     <>
@@ -62,12 +63,12 @@ const ModalCreateCategory = () => {
         className="fixed right-5 bottom-5 inter-400 text-sm text-white px-4 py-3 gap-1.5 flex items-center justify-end rounded-full bg-primary-700 shadow-md hover:opacity-75 transition-all duration-300"
         onClick={showModal}
       >
-        Add category
+        Add product type
         <Plus size={20} color="white" />
       </button>
       <dialog ref={modalRef} className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">Create category</h3>
+          <h3 className="font-bold text-lg">Create product type</h3>
 
           <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-5 px-3 py-5">
             <div className="flex flex-col gap-2 w-full">
@@ -96,7 +97,7 @@ const ModalCreateCategory = () => {
             </div>
 
             <div className="w-full flex justify-center">
-              {errorSubmit && <p className="text-sm text-danger-500">Failed to create category</p>}
+              {errorSubmit && <p className="text-sm text-danger-500">Failed to create product type</p>}
             </div>
           </form>
         </div>
@@ -105,4 +106,4 @@ const ModalCreateCategory = () => {
   )
 }
 
-export default ModalCreateCategory
+export default ModalCreateProductType

@@ -1,13 +1,13 @@
 import { useState } from "react"
-import type { CategoryResponse } from "../types"
+import type { ProductTypeResponse } from "../types"
 import { MoreHorizontal } from "lucide-react"
 
-interface TableCategoriesProps {
-  categories: CategoryResponse[] | undefined
+interface TableProductTypesProps {
+  productTypes: ProductTypeResponse[] | undefined
   handleEdit: (id: string) => void
   handleDelete: (id: string) => void
 }
-const TableCategories = ({ categories, handleEdit, handleDelete }: TableCategoriesProps) => {
+const TableProductTypes = ({ productTypes, handleEdit, handleDelete }: TableProductTypesProps) => {
   return (
     <div className="flex-1 h-full overflow-x-auto overflow-visible">
       <table className="table">
@@ -19,13 +19,13 @@ const TableCategories = ({ categories, handleEdit, handleDelete }: TableCategori
           </tr>
         </thead>
         <tbody>
-          {categories &&
-            categories.map((categ) => (
-              <tr key={categ.id} className="hover-transition">
-                <td className="inter-400 text-neutral-900">{categ.name}</td>
-                <td className="text-center inter-400 text-neutral-900">{categ.productsQuantity.products}</td>
+          {productTypes &&
+            productTypes.map((type) => (
+              <tr key={type.id} className="hover-transition">
+                <td className="inter-400 text-neutral-900">{type.name}</td>
+                <td className="text-center inter-400 text-neutral-900">{type.productsQuantity.products}</td>
                 <td className="text-center">
-                  <Menu id={categ.id} handleDelete={handleDelete} handleEdit={handleEdit} />
+                  <Menu id={type.id} handleDelete={handleDelete} handleEdit={handleEdit} />
                 </td>
               </tr>
             ))}
@@ -73,4 +73,4 @@ const Menu = ({ id, handleEdit, handleDelete }: MenuProps) => {
   )
 }
 
-export default TableCategories
+export default TableProductTypes

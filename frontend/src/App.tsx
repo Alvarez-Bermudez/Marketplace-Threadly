@@ -6,6 +6,7 @@ import CategoriesPage from "./features/admin/categories/pages/CategoriesPage"
 import CustomersPage from "./features/admin/customers/pages/CustomersPage"
 import CustomerPage from "./features/admin/customers/pages/CustomerPage"
 import AddProductPage from "./features/admin/products/pages/AddProductPage"
+import ProductTypePage from "./features/admin/productTypes/pages/ProductTypesPage"
 
 function App() {
   return (
@@ -49,6 +50,15 @@ function App() {
         element={
           <AdminLayout>
             <AddProductPage />
+          </AdminLayout>
+        }
+      />
+
+      <Route
+        path="/admin/product-types"
+        element={
+          <AdminLayout>
+            <ProductTypePage />
           </AdminLayout>
         }
       />

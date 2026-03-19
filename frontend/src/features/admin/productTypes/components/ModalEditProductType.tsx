@@ -1,30 +1,55 @@
-import { Plus } from "lucide-react"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react"
 import { useForm } from "react-hook-form"
-import { type CreateCategoryInput, createCategorySchema } from "../types"
+import { type UpdateProductTypeInput, updateProductTypeSchema } from "../types"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
-import { createCategory } from "../api"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { getProductType, updateProductType } from "../api"
 import { queryClient } from "../../../../lib/queryClient"
 
-const ModalCreateCategory = () => {
+interface ModalEditProductTypeProps {
+  productTypeId: string
+  isOpen: boolean
+  setIsOpen: Dispatch<SetStateAction<boolean>>
+}
+const ModalEditProductType = ({ productTypeId, isOpen, setIsOpen }: ModalEditProductTypeProps) => {
   const modalRef = useRef<HTMLDialogElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const [errorSubmit, setErrorSubmit] = useState<string>("")
-
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<CreateCategoryInput>({
-    resolver: zodResolver(createCategorySchema),
+  } = useForm<UpdateProductTypeInput>({
+    resolver: zodResolver(updateProductTypeSchema),
   })
 
-  const mutation = useMutation({
-    mutationFn: createCategory,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] })
+  const { data: productType } = useQuery({
+    queryKey: ["product-types", productTypeId],
+    queryFn: () => getProductType(productTypeId),
+  })
 
+  useEffect(() => {
+    if (isOpen) {
+      showModal()
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (productType)
+      reset({
+        name: productType.name,
+      })
+    setErrorSubmit("")
+  }, [productType, reset])
+
+  const mutation = useMutation({
+    mutationFn: async (data: UpdateProductTypeInput) => {
+      return updateProductType(productTypeId, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["product-types", productTypeId] })
+      queryClient.invalidateQueries({ queryKey: ["product-types"] })
       if (modalRef.current) {
         modalRef.current.close()
       }
@@ -32,9 +57,11 @@ const ModalCreateCategory = () => {
       if (formRef.current) {
         formRef.current.reset()
       }
+
+      setIsOpen(false)
     },
     onError: () => {
-      setErrorSubmit("Failed to create category")
+      setErrorSubmit("Failed to edit product type")
     },
   })
 
@@ -52,22 +79,16 @@ const ModalCreateCategory = () => {
       modalRef.current.close()
     }
     setErrorSubmit("")
+    setIsOpen(false)
   }
 
-  const onSubmit = (data: CreateCategoryInput) => mutation.mutate(data)
+  const onSubmit = (data: UpdateProductTypeInput) => mutation.mutate(data)
 
   return (
     <>
-      <button
-        className="fixed right-5 bottom-5 inter-400 text-sm text-white px-4 py-3 gap-1.5 flex items-center justify-end rounded-full bg-primary-700 shadow-md hover:opacity-75 transition-all duration-300"
-        onClick={showModal}
-      >
-        Add category
-        <Plus size={20} color="white" />
-      </button>
       <dialog ref={modalRef} className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">Create category</h3>
+          <h3 className="font-bold text-lg">Update product type</h3>
 
           <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-5 px-3 py-5">
             <div className="flex flex-col gap-2 w-full">
@@ -94,9 +115,8 @@ const ModalCreateCategory = () => {
                 </button>
               </div>
             </div>
-
             <div className="w-full flex justify-center">
-              {errorSubmit && <p className="text-sm text-danger-500">Failed to create category</p>}
+              {errorSubmit && <p className="text-sm text-danger-500">Failed to edit product type</p>}
             </div>
           </form>
         </div>
@@ -105,4 +125,4 @@ const ModalCreateCategory = () => {
   )
 }
 
-export default ModalCreateCategory
+export default ModalEditProductType

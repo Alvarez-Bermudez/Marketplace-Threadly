@@ -1,7 +1,7 @@
 import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class GetCategoriesQueryDto {
+export class GetProductTypesQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -12,7 +12,6 @@ export class GetCategoriesQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  // @Max(10)
   limit?: number = 10;
 
   @IsOptional()

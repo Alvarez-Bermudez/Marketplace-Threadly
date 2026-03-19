@@ -44,8 +44,10 @@ model Product {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
+  typesId String
+  types   ProductType @relation(fields: [typesId], references: [id], onDelete: Restrict)
+
   details String
-  types   ProductType[]
   images  ProductImage[]
   sizes   ProductSize[]
   colors  ProductColor[]
@@ -72,6 +74,12 @@ model Category {
   products Product[]
 }
 
+model ProductType {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  products Product[]
+}
+
 model ProductImage {
   id        String  @id @default(uuid())
   url       String
@@ -83,13 +91,6 @@ model ProductSize {
   id        String  @id @default(uuid())
   size      String
   stock     Int
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-}
-
-model ProductType {
-  id        String  @id @default(uuid())
-  type      String
   productId String
   product   Product @relation(fields: [productId], references: [id])
 }

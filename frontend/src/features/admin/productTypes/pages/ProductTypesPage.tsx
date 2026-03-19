@@ -3,32 +3,32 @@ import AdminSidebar from "../../../../components/AdminSidebar"
 import Searchbar from "../../../../components/Searchbar"
 
 import { useState } from "react"
-import ModalEditCategory from "../components/ModalEditCategory"
-import ModalDeleteCategory from "../components/ModalDeleteCategory"
-import TableCategories from "../components/TableCategories"
-import ModalCreateCategory from "../components/ModalCreateCategory"
-import { getCategories } from "../api"
+import { getProductTypes } from "../api"
+import TableProductTypes from "../components/TableProductTypes"
+import ModalCreateProductType from "../components/ModalCreateProductType"
+import ModalEditProductType from "../components/ModalEditProductType"
+import ModalDeleteProductType from "../components/ModalDeleteProductType"
 
-const CategoriesPage = () => {
+const ProductTypePage = () => {
   const [page, setPage] = useState<number>(1)
   const [search, setSearch] = useState<string>("")
 
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("")
+  const [selectedProductTypeId, setSelectedProductTypeId] = useState<string>("")
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
   const { data } = useQuery({
-    queryKey: ["categories", page, search],
-    queryFn: () => getCategories(page, 10, search),
+    queryKey: ["product-types", page, search],
+    queryFn: () => getProductTypes(page, 10, search),
   })
 
-  const handleEdit = (categoryId: string) => {
-    setSelectedCategoryId(categoryId)
+  const handleEdit = (productTypeId: string) => {
+    setSelectedProductTypeId(productTypeId)
     setIsEditOpen(true)
   }
 
-  const handleDelete = (categoryId: string) => {
-    setSelectedCategoryId(categoryId)
+  const handleDelete = (brandId: string) => {
+    setSelectedProductTypeId(brandId)
     setIsDeleteOpen(true)
   }
 
@@ -36,13 +36,13 @@ const CategoriesPage = () => {
     <>
       <div className="h-full flex-1 flex flex-col">
         <div className="p-2.5 flex justify-end border-b border-neutral-200">
-          <Searchbar search={search} setSearch={setSearch} placeholder="Search category..." />
+          <Searchbar search={search} setSearch={setSearch} placeholder="Search product type by name..." />
         </div>
         <div className="flex flex-row flex-1">
           <AdminSidebar />
           <div className="flex-1 flex flex-col">
             <div className="flex-1 p-3 ">
-              <TableCategories categories={data?.data} handleEdit={handleEdit} handleDelete={handleDelete} />
+              <TableProductTypes productTypes={data?.data} handleEdit={handleEdit} handleDelete={handleDelete} />
             </div>
 
             {/* Pagination */}
@@ -62,14 +62,14 @@ const CategoriesPage = () => {
               </div>
             </div>
           </div>
-          <ModalCreateCategory />
+          <ModalCreateProductType />
         </div>
       </div>
 
-      <ModalEditCategory categoryId={selectedCategoryId} isOpen={isEditOpen} setIsOpen={setIsEditOpen} />
-      <ModalDeleteCategory categoryId={selectedCategoryId} isOpen={isDeleteOpen} setIsOpen={setIsDeleteOpen} />
+      <ModalEditProductType productTypeId={selectedProductTypeId} isOpen={isEditOpen} setIsOpen={setIsEditOpen} />
+      <ModalDeleteProductType productTypeId={selectedProductTypeId} isOpen={isDeleteOpen} setIsOpen={setIsDeleteOpen} />
     </>
   )
 }
 
-export default CategoriesPage
+export default ProductTypePage

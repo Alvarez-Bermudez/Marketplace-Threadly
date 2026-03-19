@@ -10,9 +10,21 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { OrdersModule } from './orders/orders.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { CustomersModule } from './customers/customers.module';
+import { ProductTypesModule } from './product-types/product-types.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ProductsModule, CategoriesModule, BrandsModule, ReviewsModule, OrdersModule, FavoritesModule, CustomersModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    ProductsModule,
+    CategoriesModule,
+    BrandsModule,
+    ReviewsModule,
+    OrdersModule,
+    FavoritesModule,
+    CustomersModule,
+    ProductTypesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

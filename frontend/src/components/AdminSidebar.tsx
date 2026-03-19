@@ -1,4 +1,4 @@
-import { Bolt, ChartBarBig, Handbag, Layers2, LayoutDashboard, Package2, Slack, UsersRound } from "lucide-react"
+import { Bolt, ChartBarBig, Handbag, Layers2, LayoutDashboard, Package2, Shirt, Tag, UsersRound } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 
 interface Link {
@@ -64,13 +64,20 @@ const links: Links = {
       id: "7",
       name: "Brands",
       href: "/admin/brands",
-      icon: <Slack size={20} className="text-neutral-900" />,
-      iconSelected: <Slack size={20} className="text-primary-900" />,
+      icon: <Tag size={20} className="text-neutral-900" />,
+      iconSelected: <Tag size={20} className="text-primary-900" />,
+    },
+    {
+      id: "8",
+      name: "Types",
+      href: "/admin/product-types",
+      icon: <Shirt size={20} className="text-neutral-900" />,
+      iconSelected: <Shirt size={20} className="text-primary-900" />,
     },
   ],
   settings: [
     {
-      id: "8",
+      id: "9",
       name: "Settings",
       href: "/admin/settings",
       icon: <Bolt size={20} className="text-neutral-900" />,
@@ -85,7 +92,7 @@ const AdminSidebar = () => {
 
   return (
     <div className="flex-1 h-full flex flex-col w-full lg:max-w-60 bg-neutral-050 justify-between">
-      <div className="gap-10 py-7 flex flex-col ">
+      <div className="gap-10 py-5 flex flex-col ">
         <div className="flex flex-col">
           {links.primary.map((link) => (
             <Link key={link.id} to={link.href}>
@@ -121,7 +128,7 @@ const AdminSidebar = () => {
         </div>
       </div>
 
-      <div className="py-2">
+      <div className="py-3">
         <div className="flex flex-col">
           {links.settings.map((link) => (
             <Link key={link.id} to={link.href}>
