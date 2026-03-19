@@ -2,15 +2,17 @@ import { useQuery } from "@tanstack/react-query"
 import AdminSidebar from "../../../../components/AdminSidebar"
 import Searchbar from "../../../../components/Searchbar"
 
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react"
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react"
 import { Link } from "react-router-dom"
 import { getBrands } from "../../brands/api"
 import { BASE_URL } from "../../../../api/client"
 import { getCategories } from "../../categories/api"
-import type { Brands } from "../../brands/types"
+import type { Brand, Brands } from "../../brands/types"
 import type { CategoryResponse } from "../types"
 import { ChromePicker } from "react-color"
 import { Check, Plus } from "lucide-react"
+import { getProductTypes } from "../../productTypes/api"
+import type { ProductTypeResponse } from "../../productTypes/types"
 
 const AddProductPage = () => {
   const [search, setSearch] = useState<string>("")
@@ -25,8 +27,9 @@ const AddProductPage = () => {
     queryFn: () => getCategories(),
   })
 
-  const { data: types } = useQuery({
-    queryKey: ["types"],
+  const { data: productTypes } = useQuery({
+    queryKey: ["product-types"],
+    queryFn: () => getProductTypes(),
   })
 
   return (
@@ -44,7 +47,7 @@ const AddProductPage = () => {
               {/* Form */}
 
               <div className="flex-1 flex flex-col">
-                <div className=" flex flex-col gap-1.5 w-full p-2 justify-start">
+                <div className=" flex flex-col gap-3 w-full p-2 justify-start">
                   <div className="flex flex-col gap-1 w-full">
                     <fieldset className="fieldset w-full max-w-120">
                       <legend className="fieldset-legend w-full">Name:</legend>
@@ -78,18 +81,23 @@ const AddProductPage = () => {
 
                   <div className="flex gap-6 w-full ">
                     <div className="space-y-0">
-                      <p className="fieldset-legend text-xs">Brand:</p>
-                      <DropwdownBrand brands={brands?.data} />
-                    </div>
-
-                    <div className="space-y-0">
                       <p className="fieldset-legend text-xs">Category:</p>
                       <DropdownCategory categories={categories?.data} />
                     </div>
 
                     <div className="space-y-0">
+                      <p className="fieldset-legend text-xs">Brand:</p>
+                      <DropwdownBrand brands={brands?.data} />
+                    </div>
+
+                    <div className="space-y-0">
                       <p className="fieldset-legend text-xs">Types:</p>
-                      <DropdownCategory categories={categories?.data} />
+                      <DropdownProductTypes productTypes={productTypes?.data} />
+                    </div>
+
+                    <div className="space-y-0">
+                      <p className="fieldset-legend text-xs">Images:</p>
+                      <input type="file" className="file-input" />
                     </div>
                   </div>
 
@@ -104,7 +112,19 @@ const AddProductPage = () => {
                       <ColorsSelector />
                     </div>
                   </div>
+
+                  <div>
+                    <textarea className="textarea w-full max-w-150" placeholder="Description"></textarea>
+                  </div>
+                  <div>
+                    <textarea className="textarea" placeholder="Details"></textarea>
+                  </div>
                 </div>
+
+                <button className="fixed right-5 bottom-5 inter-400 text-sm text-white px-4 py-3 gap-1.5 flex items-center justify-end rounded-full bg-primary-700 shadow-md hover:opacity-75 transition-all duration-300">
+                  Add product
+                  <Plus size={20} color="white" />
+                </button>
               </div>
             </div>
           </div>
@@ -183,7 +203,7 @@ const BadgesSizesSelector = () => {
 
     return (
       <div
-        className={`flex items-center justify-center px-4.5 py-1 rounded-full  hover:shadow-lg transition-all duration-300 inter-400 text-sm text-nuetral-900 cursor-pointer ${isSelected ? "bg-primary-500 text-white" : "border border-neutral-200"}`}
+        className={`flex items-center justify-center px-4.5 py-1 rounded-full  hover:shadow-lg transition-all duration-300 inter-400 text-sm text-nuetral-900 cursor-pointer border ${isSelected ? "bg-primary-500 text-white border-primary-500" : " border-neutral-200"}`}
         onClick={handleClick}
       >
         {label}
@@ -206,16 +226,66 @@ const BadgesSizesSelector = () => {
   )
 }
 
-const DropdownCategory = ({ categories }: { categories: CategoryResponse[] | undefined }) => {
+const DropdownProductTypes = ({ productTypes }: { productTypes: ProductTypeResponse[] | undefined }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedId, setSelectedId] = useState<string>()
+  const [selectedName, setSelectedName] = useState<string>()
+
+  const buttonRef = useRef<HTMLDivElement>(null)
+
+  const handleClick = (type: ProductTypeResponse) => {
+    setSelectedName(type.name)
+    setSelectedId(type.id)
+
+    if (buttonRef.current) {
+      buttonRef.current.click()
+    }
+  }
+
   return (
     <div className="dropdown">
-      <div tabIndex={0} role="button" className="btn m-1 w-full">
-        Click to select Category
+      <div ref={buttonRef} tabIndex={0} role="button" className="btn m-1 w-full min-w-52 inter-500">
+        {!selectedName ? "Click to select Type" : selectedName}
+      </div>
+      <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+        {productTypes &&
+          productTypes.map((type) => (
+            <li key={type.id} onClick={() => handleClick(type)}>
+              <a>
+                <div className="flex gap-1.5">{type.name}</div>
+              </a>
+            </li>
+          ))}
+      </ul>
+    </div>
+  )
+}
+
+const DropdownCategory = ({ categories }: { categories: CategoryResponse[] | undefined }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedId, setSelectedId] = useState<string>()
+  const [selectedName, setSelectedName] = useState<string>()
+
+  const buttonRef = useRef<HTMLDivElement>(null)
+
+  const handleClick = (categ: CategoryResponse) => {
+    setSelectedName(categ.name)
+    setSelectedId(categ.id)
+
+    if (buttonRef.current) {
+      buttonRef.current.click()
+    }
+  }
+
+  return (
+    <div className="dropdown">
+      <div ref={buttonRef} tabIndex={0} role="button" className="btn m-1 w-full min-w-52 inter-500">
+        {!selectedName ? "Click to select Category" : selectedName}
       </div>
       <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
         {categories &&
           categories.map((categ) => (
-            <li key={categ.id}>
+            <li key={categ.id} onClick={() => handleClick(categ)}>
               <a>
                 <div className="flex gap-1.5">{categ.name}</div>
               </a>
@@ -227,15 +297,32 @@ const DropdownCategory = ({ categories }: { categories: CategoryResponse[] | und
 }
 
 const DropwdownBrand = ({ brands }: { brands: Brands | undefined }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedId, setSelectedId] = useState<string>()
+  const [selectedName, setSelectedName] = useState<string>()
+  const [selectedImgUri, setSelectedImgUri] = useState<string>()
+
+  const buttonRef = useRef<HTMLDivElement>(null)
+
+  const handleClick = (brand: Brand) => {
+    setSelectedName(brand.name)
+    setSelectedId(brand.id)
+    setSelectedImgUri(brand.imageUrl)
+
+    if (buttonRef.current) {
+      buttonRef.current.click()
+    }
+  }
   return (
     <div className="dropdown">
-      <div tabIndex={0} role="button" className="btn m-1 w-full">
-        Click to select Brand
+      <div ref={buttonRef} tabIndex={0} role="button" className="btn m-1 w-full min-w-52  inter-500 flex gap-1.5 ">
+        {selectedImgUri && <img src={`${BASE_URL}${selectedImgUri}`} width={20} />}
+        {!selectedName ? "Click to select Brand" : selectedName}
       </div>
       <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
         {brands &&
           brands.map((brand) => (
-            <li key={brand.id}>
+            <li key={brand.id} onClick={() => handleClick(brand)}>
               <a>
                 <div className="flex gap-1.5">
                   <img src={`${BASE_URL}${brand.imageUrl}`} width={20} />
