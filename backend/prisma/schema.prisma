@@ -33,7 +33,6 @@ model Product {
   id            String @id @default(uuid())
   name          String
   slug          String @unique
-  description   String
   price         Float
   discountPrice Float?
   stock         Int
@@ -44,13 +43,14 @@ model Product {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
-  typesId String
-  types   ProductType @relation(fields: [typesId], references: [id], onDelete: Restrict)
+  typeId String
+  type   ProductType @relation(fields: [typeId], references: [id], onDelete: Restrict)
 
-  details String
-  images  ProductImage[]
-  sizes   ProductSize[]
-  colors  ProductColor[]
+  details     String
+  description String
+  images      ProductImage[]
+  sizes       ProductSize[]
+  colors      ProductColor[]
 
   ratingAverage Float    @default(0)
   reviewCount   Int      @default(0)
@@ -99,6 +99,7 @@ model ProductColor {
   id        String  @id @default(uuid())
   color     String
   productId String
+  stock     Int
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 

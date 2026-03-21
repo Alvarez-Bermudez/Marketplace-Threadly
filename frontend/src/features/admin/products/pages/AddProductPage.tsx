@@ -1,21 +1,50 @@
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import AdminSidebar from "../../../../components/AdminSidebar"
 import Searchbar from "../../../../components/Searchbar"
 
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react"
-import { Link } from "react-router-dom"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { getBrands } from "../../brands/api"
-import { BASE_URL } from "../../../../api/client"
 import { getCategories } from "../../categories/api"
-import type { Brand, Brands } from "../../brands/types"
-import type { CategoryResponse } from "../types"
-import { ChromePicker } from "react-color"
-import { Check, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import { getProductTypes } from "../../productTypes/api"
-import type { ProductTypeResponse } from "../../productTypes/types"
+import { Controller, useForm } from "react-hook-form"
 
+import { zodResolver } from "@hookform/resolvers/zod"
+import { queryClient } from "../../../../lib/queryClient"
+import { createProductSchema, type CreateProductInput } from "../types"
+import Breadcrumbs from "../components/create-product/Breadcrumbs"
+import DropdownCategory from "../components/create-product/DropdownCategory"
+import DropdownBrand from "../components/create-product/DropdownBrand"
+import DropdownProductTypes from "../components/create-product/DropdownProductTypes"
+import BadgesSizesSelector from "../components/create-product/BadgesSizesSelector"
+import ColorsSelector from "../components/create-product/ColorSelector"
+import { createProduct } from "../api"
+
+//Note: use headers: {"Content-Type": "multipart/form-data"}
 const AddProductPage = () => {
-  const [search, setSearch] = useState<string>("")
+  const [search, setSearch] = useState<string>("") //Unused but keept for ui reasons
+
+  const [sizes, setSizes] = useState<string[]>([])
+  const [sizesStock, setSizesStock] = useState<number[]>(new Array(6).fill(0)) //Array with a fixed total length. The values filled are gonna fill its relative position on the array. Before submit there's to remove empty fields. Remember the sizes and sizesStock's length must be the same value
+
+  const [colors, setColors] = useState<string[]>([])
+  const [colorsStock, setColorsStock] = useState<number[]>(new Array(30).fill(0)) //Array with a fixed total length, it assumes the max. The values filled are gonna fill its relative position on the array. Before submit there's to remove empty fields. Remember the colors and colorsStock's length must be the same value
+
+  // useEffect(() => {
+  //   console.log(colors)
+  //   console.log(colorsStock)
+  // }, [colors, colorsStock])
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateProductInput>({
+    resolver: zodResolver(createProductSchema),
+  })
+
+  const navigate = useNavigate()
 
   const { data: brands } = useQuery({
     queryKey: ["brands"],
@@ -31,6 +60,67 @@ const AddProductPage = () => {
     queryKey: ["product-types"],
     queryFn: () => getProductTypes(),
   })
+
+  const mutation = useMutation({
+    mutationFn: (data: CreateProductInput) => {
+      const formData = new FormData()
+
+      formData.append("name", data.name)
+      formData.append("slug", data.slug)
+      formData.append("price", data.price.toString())
+      if (data.discountPrice) {
+        formData.append("discountPrice", data.discountPrice.toString())
+      }
+      formData.append("stock", data.stock.toString())
+      if (data.brandId) {
+        formData.append("brandId", data.brandId)
+      }
+      formData.append("categoryId", data.categoryId)
+      formData.append("typeId", data.typeId)
+      if (data.description) {
+        formData.append("description", data.description)
+      }
+      if (data.details) {
+        formData.append("details", data.details)
+      }
+
+      if (data.files) {
+        Array.from(data.files).forEach((file) => {
+          formData.append("files", file as Blob)
+        })
+      }
+
+      //Pass sizes and sizesStock
+      const _sizesStock = sizesStock.filter((i) => i !== 0).map((i) => Math.abs(i)) //Remove the zeros. And avoid pass negative values, transforming them to positive
+      if (sizes.length == _sizesStock.length && sizes.length > 0) {
+        formData.append("sizes", JSON.stringify(sizes))
+        formData.append("sizesStock", JSON.stringify(_sizesStock))
+      }
+
+      //Pass colors and colorsStock
+      const _colorsStock = colorsStock.filter((i) => i !== 0).map((i) => Math.abs(i)) //Remove the zeros. And avoid pass negative values, transforming them to positive values
+      if (colors.length == _colorsStock.length && colors.length > 0) {
+        formData.append("colors", JSON.stringify(colors))
+        formData.append("colorsStock", JSON.stringify(_colorsStock))
+      }
+
+      console.log(JSON.stringify(formData, null, 2))
+      return createProduct(formData)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+      navigate("/admin/products")
+    },
+    onError: (e) => {
+      console.log(e.message)
+    },
+  })
+
+  const isPending = mutation.isPending
+
+  const onSubmit = (data: CreateProductInput) => {
+    mutation.mutate(data)
+  }
 
   return (
     <>
@@ -49,79 +139,224 @@ const AddProductPage = () => {
               <div className="flex-1 flex flex-col">
                 <div className=" flex flex-col gap-3 w-full p-2 justify-start">
                   <div className="flex flex-col gap-1 w-full">
-                    <fieldset className="fieldset w-full max-w-120">
-                      <legend className="fieldset-legend w-full">Name:</legend>
-                      <input type="text" className="input w-full" placeholder="Slim Fit Denim Jacket" />
-                      <p className="label">Required</p>
-                    </fieldset>
-                    <fieldset className="fieldset w-full max-w-120">
-                      <legend className="fieldset-legend w-full">Slug:</legend>
-                      <input type="text" className="input w-full" placeholder="slim-fit-denim-jacket" />
-                      <p className="label">Required</p>
-                    </fieldset>
+                    <Controller
+                      control={control}
+                      name="name"
+                      render={({ field: { onChange, value } }) => (
+                        <fieldset className="fieldset w-full max-w-120">
+                          <legend className="fieldset-legend w-full">Name:</legend>
+                          <input
+                            type="text"
+                            value={value}
+                            onChange={(e) => onChange(e.target.value)}
+                            className="input w-full"
+                            placeholder="Slim Fit Denim Jacket"
+                          />
+                          {errors.name && <p className="text-sm text-danger-500">{errors.name.message}</p>}
+                          <p className="label">Required</p>
+                        </fieldset>
+                      )}
+                    />
+
+                    <Controller
+                      control={control}
+                      name="slug"
+                      render={({ field: { onChange, value } }) => (
+                        <fieldset className="fieldset w-full max-w-120">
+                          <legend className="fieldset-legend w-full">Slug:</legend>
+                          <input
+                            type="text"
+                            value={value}
+                            onChange={(e) => onChange(e.target.value)}
+                            className="input w-full"
+                            placeholder="slim-fit-denim-jacket"
+                          />
+                          {errors.slug && <p className="text-sm text-danger-500">{errors.slug.message}</p>}
+                          <p className="label">Required</p>
+                        </fieldset>
+                      )}
+                    />
                   </div>
 
                   <div className="grid grid-cols-3 gap-6 w-full">
-                    <fieldset className="fieldset w-full max-w-100">
-                      <legend className="fieldset-legend w-full">Price ($):</legend>
-                      <input type="text" className="input w-full" placeholder="12.45" />
-                      <p className="label">Required</p>
-                    </fieldset>
-                    <fieldset className="fieldset w-full max-w-100">
-                      <legend className="fieldset-legend w-full">Discount Price ($):</legend>
-                      <input type="text" className="input w-full" placeholder="1.50" />
-                      <p className="label">Optional</p>
-                    </fieldset>
-                    <fieldset className="fieldset w-full max-w-100">
-                      <legend className="fieldset-legend w-full">Stock:</legend>
-                      <input type="text" className="input w-full" placeholder="35" />
-                      <p className="label">Required</p>
-                    </fieldset>
+                    <Controller
+                      control={control}
+                      name="price"
+                      render={({ field: { onChange, value } }) => (
+                        <fieldset className="fieldset w-full max-w-100">
+                          <legend className="fieldset-legend w-full">Price ($):</legend>
+                          <input
+                            type="text"
+                            value={value}
+                            onChange={(e) => onChange(Number(e.target.value))}
+                            className="input w-full"
+                            placeholder="12.45"
+                          />
+                          {errors.price && <p className="text-sm text-danger-500">{errors.price.message}</p>}
+                          <p className="label">Required</p>
+                        </fieldset>
+                      )}
+                    />
+
+                    <Controller
+                      control={control}
+                      name="discountPrice"
+                      render={({ field: { onChange, value } }) => (
+                        <fieldset className="fieldset w-full max-w-100">
+                          <legend className="fieldset-legend w-full">Discount Price ($):</legend>
+                          <input
+                            type="text"
+                            value={value}
+                            onChange={(e) => onChange(Number(e.target.value))}
+                            className="input w-full"
+                            placeholder="1.50"
+                          />
+                          {errors.discountPrice && (
+                            <p className="text-sm text-danger-500">{errors.discountPrice.message}</p>
+                          )}
+                          <p className="label">Optional</p>
+                        </fieldset>
+                      )}
+                    />
+
+                    <Controller
+                      control={control}
+                      name="stock"
+                      render={({ field: { onChange, value } }) => (
+                        <fieldset className="fieldset w-full max-w-100">
+                          <legend className="fieldset-legend w-full">Stock:</legend>
+                          <input
+                            type="text"
+                            value={value}
+                            onChange={(e) => onChange(Number(e.target.value))}
+                            className="input w-full"
+                            placeholder="35"
+                          />
+                          {errors.stock && <p className="text-sm text-danger-500">{errors.stock.message}</p>}
+
+                          <p className="label">Required</p>
+                        </fieldset>
+                      )}
+                    />
                   </div>
 
                   <div className="flex gap-6 w-full ">
-                    <div className="space-y-0">
-                      <p className="fieldset-legend text-xs">Category:</p>
-                      <DropdownCategory categories={categories?.data} />
-                    </div>
+                    <Controller
+                      control={control}
+                      name="categoryId"
+                      render={({ field: { onChange } }) => (
+                        <div className="space-y-0">
+                          <p className="fieldset-legend text-xs">Category:</p>
+                          <DropdownCategory categories={categories?.data} onChange={onChange} />
+                        </div>
+                      )}
+                    />
 
-                    <div className="space-y-0">
-                      <p className="fieldset-legend text-xs">Brand:</p>
-                      <DropwdownBrand brands={brands?.data} />
-                    </div>
+                    <Controller
+                      control={control}
+                      name="brandId"
+                      render={({ field: { onChange } }) => (
+                        <div className="space-y-0">
+                          <p className="fieldset-legend text-xs">Brand:</p>
+                          <DropdownBrand brands={brands?.data} onChange={onChange} />
+                        </div>
+                      )}
+                    />
 
-                    <div className="space-y-0">
-                      <p className="fieldset-legend text-xs">Types:</p>
-                      <DropdownProductTypes productTypes={productTypes?.data} />
-                    </div>
+                    <Controller
+                      control={control}
+                      name="typeId"
+                      render={({ field: { onChange } }) => (
+                        <div className="space-y-0">
+                          <p className="fieldset-legend text-xs">Types:</p>
+                          <DropdownProductTypes productTypes={productTypes?.data} onChange={onChange} />
+                        </div>
+                      )}
+                    />
 
-                    <div className="space-y-0">
-                      <p className="fieldset-legend text-xs">Images:</p>
-                      <input type="file" className="file-input" />
-                    </div>
+                    <Controller
+                      control={control}
+                      name="files"
+                      render={({ field: { onChange } }) => (
+                        <div className="space-y-0">
+                          <p className="fieldset-legend text-xs">Images:</p>
+                          <input
+                            type="file"
+                            multiple
+                            className="file-input"
+                            onChange={(e) => onChange(e.target.files)}
+                          />
+                        </div>
+                      )}
+                    />
                   </div>
 
                   <div className="flex gap-6 w-full items-stretch">
                     <div className="flex flex-col ">
-                      <p className="fieldset-legend text-xs">Sizes:</p>
-                      <BadgesSizesSelector />
+                      <p className="fieldset-legend text-xs">Sizes & Stocks:</p>
+                      <BadgesSizesSelector
+                        sizes={sizes}
+                        setSizes={setSizes}
+                        sizesStock={sizesStock}
+                        setSizesStock={setSizesStock}
+                      />
                     </div>
 
                     <div className="flex flex-col ">
                       <p className="fieldset-legend text-xs">Colors:</p>
-                      <ColorsSelector />
+                      <ColorsSelector
+                        setColors={setColors}
+                        colors={colors}
+                        setColorsStock={setColorsStock}
+                        colorsStock={colorsStock}
+                      />
                     </div>
                   </div>
 
                   <div>
-                    <textarea className="textarea w-full max-w-150" placeholder="Description"></textarea>
+                    <Controller
+                      control={control}
+                      name="description"
+                      render={({ field: { onChange, value } }) => (
+                        <div className="flex flex-col gap-1">
+                          <textarea
+                            onChange={(e) => onChange(e.target.value)}
+                            value={value}
+                            className="textarea w-full max-w-150"
+                            placeholder="Description"
+                          />
+                          {errors.description && (
+                            <p className="text-sm text-danger-500">{errors.description.message}</p>
+                          )}
+                        </div>
+                      )}
+                    />
                   </div>
+
                   <div>
-                    <textarea className="textarea" placeholder="Details"></textarea>
+                    <Controller
+                      control={control}
+                      name="details"
+                      render={({ field: { onChange, value } }) => (
+                        <div className="flex flex-col gap-1">
+                          <textarea
+                            onChange={(e) => onChange(e.target.value)}
+                            value={value}
+                            className="textarea"
+                            placeholder="Details"
+                          />
+                          {errors.details && <p className="text-sm text-danger-500">{errors.details.message}</p>}
+                        </div>
+                      )}
+                    />
                   </div>
                 </div>
 
-                <button className="fixed right-5 bottom-5 inter-400 text-sm text-white px-4 py-3 gap-1.5 flex items-center justify-end rounded-full bg-primary-700 shadow-md hover:opacity-75 transition-all duration-300">
+                <button
+                  onClick={handleSubmit(onSubmit)}
+                  disabled={isPending}
+                  className="fixed right-5 bottom-5 inter-400 text-sm text-white px-4 py-3 gap-1.5 flex items-center justify-end rounded-full bg-primary-700 shadow-md hover:opacity-75 transition-all duration-300"
+                >
                   Add product
                   <Plus size={20} color="white" />
                 </button>
@@ -134,239 +369,4 @@ const AddProductPage = () => {
   )
 }
 
-const ColorsSelector = () => {
-  const [colors, setColors] = useState<string[]>([])
-  const [localColor, setLocalColor] = useState<string>("") //State used for select with the picker, on success add to colors
-  const [isPickerVisible, setIsPickerVisible] = useState<boolean>()
-
-  const showPicker = () => setIsPickerVisible(true)
-  const hidePicker = () => setIsPickerVisible(false)
-
-  const addColor = () => {
-    const colorSelected = localColor
-    if (!colors.includes(colorSelected)) {
-      setColors([...colors, colorSelected])
-    }
-    hidePicker()
-  }
-  return (
-    <div className="flex gap-1.5 h-full items-center">
-      {colors.map((color) => (
-        <div key={color} className="rounded-full size-4" style={{ backgroundColor: color }} />
-      ))}
-      {!isPickerVisible && (
-        <button onClick={showPicker}>
-          <Plus className="text-success size-4 cursor-pointer" />
-        </button>
-      )}
-
-      {isPickerVisible && (
-        <button onClick={addColor}>
-          <Check className="text-primary-500 size-4 cursor-pointer" />
-        </button>
-      )}
-
-      {isPickerVisible && (
-        <ChromePicker
-          className="absolute translate-y-[60%]"
-          color={localColor}
-          onChange={(updated) => {
-            setLocalColor(updated.hex)
-          }}
-        />
-      )}
-    </div>
-  )
-}
-
-const BadgesSizesSelector = () => {
-  const [sizes, setSizes] = useState<string[]>([])
-
-  const Badge = ({
-    label,
-    sizes,
-    setSizes,
-  }: {
-    label: string
-    sizes: string[]
-    setSizes: Dispatch<SetStateAction<string[]>>
-  }) => {
-    const isSelected = sizes.includes(label)
-
-    const handleClick = () => {
-      if (isSelected) {
-        setSizes((sizes) => sizes.filter((i) => i !== label))
-      } else {
-        setSizes((sizes) => [...sizes.filter((i) => i !== label), label])
-      }
-    }
-
-    return (
-      <div
-        className={`flex items-center justify-center px-4.5 py-1 rounded-full  hover:shadow-lg transition-all duration-300 inter-400 text-sm text-nuetral-900 cursor-pointer border ${isSelected ? "bg-primary-500 text-white border-primary-500" : " border-neutral-200"}`}
-        onClick={handleClick}
-      >
-        {label}
-      </div>
-    )
-  }
-
-  useEffect(() => {
-    console.log(sizes)
-  }, [sizes])
-  return (
-    <div className="flex gap-1.5">
-      <Badge label="XS" sizes={sizes} setSizes={setSizes} />
-      <Badge label="S" sizes={sizes} setSizes={setSizes} />
-      <Badge label="M" sizes={sizes} setSizes={setSizes} />
-      <Badge label="L" sizes={sizes} setSizes={setSizes} />
-      <Badge label="XL" sizes={sizes} setSizes={setSizes} />
-      <Badge label="XXL" sizes={sizes} setSizes={setSizes} />
-    </div>
-  )
-}
-
-const DropdownProductTypes = ({ productTypes }: { productTypes: ProductTypeResponse[] | undefined }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedId, setSelectedId] = useState<string>()
-  const [selectedName, setSelectedName] = useState<string>()
-
-  const [visible, setVisible] = useState(true)
-
-  const open = () => {
-    setVisible(true)
-  }
-  const close = () => {
-    setVisible(false)
-  }
-
-  const handleClick = (type: ProductTypeResponse) => {
-    setSelectedName(type.name)
-    setSelectedId(type.id)
-
-    close()
-  }
-
-  return (
-    <details className="dropdown" open={visible}>
-      <summary className="btn m-1 w-full min-w-52 inter-500" onClick={open}>
-        {!selectedName ? "Click to select Type" : selectedName}
-      </summary>
-      <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
-        {productTypes &&
-          productTypes.map((type) => (
-            <li key={type.id} onClick={() => handleClick(type)}>
-              <a>
-                <div className="flex gap-1.5">{type.name}</div>
-              </a>
-            </li>
-          ))}
-      </ul>
-    </details>
-  )
-}
-
-const DropdownCategory = ({ categories }: { categories: CategoryResponse[] | undefined }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedId, setSelectedId] = useState<string>()
-  const [selectedName, setSelectedName] = useState<string>()
-
-  const [visible, setVisible] = useState(true)
-
-  const open = () => {
-    setVisible(true)
-  }
-  const close = () => {
-    setVisible(false)
-  }
-
-  const handleClick = (categ: CategoryResponse) => {
-    setSelectedName(categ.name)
-    setSelectedId(categ.id)
-
-    close()
-  }
-
-  return (
-    <details className="dropdown" open={visible}>
-      <summary className="btn m-1 w-full min-w-52 inter-500" onClick={open}>
-        {!selectedName ? "Click to select Category" : selectedName}
-      </summary>
-      <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
-        {categories &&
-          categories.map((categ) => (
-            <li key={categ.id} onClick={() => handleClick(categ)}>
-              <a>
-                <div className="flex gap-1.5">{categ.name}</div>
-              </a>
-            </li>
-          ))}
-      </ul>
-    </details>
-  )
-}
-
-const DropwdownBrand = ({ brands }: { brands: Brands | undefined }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedId, setSelectedId] = useState<string>()
-  const [selectedName, setSelectedName] = useState<string>()
-  const [selectedImgUri, setSelectedImgUri] = useState<string>()
-
-  const [visible, setVisible] = useState(true)
-
-  const open = () => {
-    setVisible(true)
-  }
-  const close = () => {
-    setVisible(false)
-  }
-
-  const handleClick = (brand: Brand) => {
-    setSelectedName(brand.name)
-    setSelectedId(brand.id)
-    setSelectedImgUri(brand.imageUrl)
-
-    close()
-  }
-  return (
-    <>
-      <details className="dropdown" open={visible}>
-        <summary className="btn m-1 w-full min-w-52 inter-500 flex gap-1.5" onClick={open}>
-          {selectedImgUri && <img src={`${BASE_URL}${selectedImgUri}`} width={20} />}
-          {!selectedName ? "Click to select Brand" : selectedName}
-        </summary>
-        <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
-          {brands &&
-            brands.map((brand) => (
-              <li key={brand.id} onClick={() => handleClick(brand)}>
-                <a>
-                  <div className="flex gap-1.5">
-                    <img src={`${BASE_URL}${brand.imageUrl}`} width={20} />
-                    {brand.name}
-                  </div>
-                </a>
-              </li>
-            ))}
-        </ul>
-      </details>
-    </>
-  )
-}
-
-const Breadcrumbs = () => {
-  return (
-    <div className="breadcrumbs">
-      <ul>
-        <li>
-          <Link to="/admin/products" className="text-base inter-400 ">
-            Products
-          </Link>
-        </li>
-        <li>
-          <a className="text-base inter-400 ">Create</a>
-        </li>
-      </ul>
-    </div>
-  )
-}
 export default AddProductPage
