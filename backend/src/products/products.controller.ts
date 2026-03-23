@@ -1,7 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
+  Param,
   Post,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -15,10 +19,16 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateProductDto } from './dto/create-product.dto';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { GetProductsQueryDto } from './dto/get-products-query.dto';
 
 @Controller('')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
+  @Get('products')
+  findAll(@Query() query: GetProductsQueryDto) {
+    return this.productsService.findAll(query.page, query.limit, query.search);
+  }
 
   @Post('admin/products')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -49,5 +59,13 @@ export class ProductsController {
     // console.log(createProductDto);
     // console.log(files);
     return this.productsService.create(createProductDto, files);
+  }
+
+  @Delete('admin/products/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
+  delete(@Param('id') id: string) {
+    console.log('Call to delete, id: ', id);
+    return this.productsService.delete(id);
   }
 }

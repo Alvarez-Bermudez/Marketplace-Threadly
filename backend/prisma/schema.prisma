@@ -37,8 +37,8 @@ model Product {
   discountPrice Float?
   stock         Int
 
-  brandId String
-  brand   Brand  @relation(fields: [brandId], references: [id])
+  brandId String?
+  brand   Brand?  @relation(fields: [brandId], references: [id])
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
@@ -46,8 +46,8 @@ model Product {
   typeId String
   type   ProductType @relation(fields: [typeId], references: [id], onDelete: Restrict)
 
-  details     String
-  description String
+  details     String?
+  description String?
   images      ProductImage[]
   sizes       ProductSize[]
   colors      ProductColor[]

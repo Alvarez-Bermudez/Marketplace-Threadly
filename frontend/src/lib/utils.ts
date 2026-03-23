@@ -36,3 +36,7 @@ export function formatCurrencyUSD(amount: number): string {
     maximumFractionDigits: 2, // limit to 2 decimals
   }).format(amount)
 }
+
+export function formatNumberUS(number: number): string {
+  return new Intl.NumberFormat("en-US").format(number)
+}

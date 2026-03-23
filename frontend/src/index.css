@@ -32,8 +32,10 @@
 }
 @layer base {
   * {
-    @apply box-border m-0 p-0;
+    @apply box-border m-0 p-0 text-neutral-900;
   }
+
+  
 }
 
 
@@ -46,6 +48,7 @@
   .hover-transition{
     @apply hover:bg-neutral-100 transition-all duration-300;
   }
+  
 }
 
 .inter-400 {

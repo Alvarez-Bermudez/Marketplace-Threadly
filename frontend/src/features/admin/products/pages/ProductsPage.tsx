@@ -3,32 +3,25 @@ import AdminSidebar from "../../../../components/AdminSidebar"
 import Searchbar from "../../../../components/Searchbar"
 
 import { useState } from "react"
-import ModalEditCategory from "../components/ModalEditCategory"
-import ModalDeleteCategory from "../components/ModalDeleteCategory"
-import TableCategories from "../components/TableCategories"
-import ModalCreateCategory from "../components/ModalCreateCategory"
-import { getCategories } from "../api"
+import { getProducts } from "../api"
+import TableProducts from "../components/TableProducts"
+import CreateProductButton from "../components/ModalCreateCategory"
+import ModalDeleteProduct from "../components/ModalDeleteProduct"
 
-const CategoriesPage = () => {
+const ProductsPage = () => {
   const [page, setPage] = useState<number>(1)
   const [search, setSearch] = useState<string>("")
 
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("")
-  const [isEditOpen, setIsEditOpen] = useState(false)
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-
   const { data } = useQuery({
-    queryKey: ["categories", page, search],
-    queryFn: () => getCategories(page, 10, search),
+    queryKey: ["products", page, search],
+    queryFn: () => getProducts(page, 10, search),
   })
 
-  const handleEdit = (brandId: string) => {
-    setSelectedCategoryId(brandId)
-    setIsEditOpen(true)
-  }
+  const [selectedProductId, setSelectedProductId] = useState<string>("")
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
-  const handleDelete = (brandId: string) => {
-    setSelectedCategoryId(brandId)
+  const handleDelete = (categoryId: string) => {
+    setSelectedProductId(categoryId)
     setIsDeleteOpen(true)
   }
 
@@ -42,7 +35,7 @@ const CategoriesPage = () => {
           <AdminSidebar />
           <div className="flex-1 flex flex-col">
             <div className="flex-1 p-3 ">
-              <TableCategories categories={data?.data} handleEdit={handleEdit} handleDelete={handleDelete} />
+              <TableProducts products={data?.data} handleDelete={handleDelete} />
             </div>
 
             {/* Pagination */}
@@ -53,7 +46,7 @@ const CategoriesPage = () => {
                 </button>
                 <button className="join-item btn">Page {page}</button>
                 <button
-                  disabled={page * 8 >= (data?.meta.total ?? 0)}
+                  disabled={page * 10 >= (data?.meta.total ?? 0)}
                   onClick={() => setPage((p) => p + 1)}
                   className="join-item btn"
                 >
@@ -62,14 +55,12 @@ const CategoriesPage = () => {
               </div>
             </div>
           </div>
-          <ModalCreateCategory />
+          <CreateProductButton />
         </div>
       </div>
-
-      <ModalEditCategory categoryId={selectedCategoryId} isOpen={isEditOpen} setIsOpen={setIsEditOpen} />
-      <ModalDeleteCategory categoryId={selectedCategoryId} isOpen={isDeleteOpen} setIsOpen={setIsDeleteOpen} />
+      <ModalDeleteProduct productId={selectedProductId} isOpen={isDeleteOpen} setIsOpen={setIsDeleteOpen} />
     </>
   )
 }
 
-export default CategoriesPage
+export default ProductsPage

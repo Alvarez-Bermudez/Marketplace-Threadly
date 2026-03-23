@@ -2,14 +2,14 @@ import { useEffect, useRef, type Dispatch, type SetStateAction } from "react"
 import { useMutation } from "@tanstack/react-query"
 
 import { queryClient } from "../../../../lib/queryClient"
-import { deleteCategory } from "../api"
+import { deleteProduct } from "../api"
 
-interface ModalDeleteCategoryProps {
-  categoryId: string
+interface ModalDeleteProductProps {
+  productId: string
   isOpen: boolean
   setIsOpen: Dispatch<SetStateAction<boolean>>
 }
-const ModalDeleteCategory = ({ categoryId, isOpen, setIsOpen }: ModalDeleteCategoryProps) => {
+const ModalDeleteProduct = ({ productId, isOpen, setIsOpen }: ModalDeleteProductProps) => {
   const modalRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -19,9 +19,9 @@ const ModalDeleteCategory = ({ categoryId, isOpen, setIsOpen }: ModalDeleteCateg
   }, [isOpen])
 
   const deleteMutation = useMutation({
-    mutationFn: deleteCategory,
+    mutationFn: deleteProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] })
+      queryClient.invalidateQueries({ queryKey: ["products"] })
       if (modalRef.current) {
         modalRef.current.close()
       }
@@ -44,16 +44,17 @@ const ModalDeleteCategory = ({ categoryId, isOpen, setIsOpen }: ModalDeleteCateg
   }
 
   const handleDelete = () => {
-    deleteMutation.mutate(categoryId)
+    deleteMutation.mutate(productId)
   }
+
   return (
     <>
       <dialog ref={modalRef} className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">Remove category</h3>
+          <h3 className="font-bold text-lg">Remove product</h3>
 
           <form className="w-full flex flex-col gap-5 px-3 py-5">
-            <p className="text-sm text-neutral-900 inter-400">Are you sure you want to remove this category?</p>
+            <p className="text-sm text-neutral-900 inter-400">Are you sure you want to remove this product?</p>
 
             <div className="modal-action">
               <div className="flex gap-2">
@@ -78,4 +79,4 @@ const ModalDeleteCategory = ({ categoryId, isOpen, setIsOpen }: ModalDeleteCateg
   )
 }
 
-export default ModalDeleteCategory
+export default ModalDeleteProduct

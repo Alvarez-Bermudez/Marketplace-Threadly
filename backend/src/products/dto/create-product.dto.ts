@@ -31,7 +31,7 @@ export class CreateProductDto {
   @IsNumber()
   @IsPositive()
   @IsOptional()
-  discountPrice: number;
+  discountPrice?: number;
 
   @Transform(({ value }) => parseInt(value, 10))
   @IsNumber()
@@ -40,7 +40,7 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
-  brandId: string;
+  brandId?: string;
 
   @IsString()
   categoryId: string;
@@ -50,31 +50,35 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
-  description: string;
+  description?: string;
 
   @IsString()
   @IsOptional()
-  details: string;
+  details?: string;
 
+  @IsOptional()
   @Transform(({ value }) => JSON.parse(value))
   @IsArray()
   @IsString({ each: true })
-  sizes: string[];
+  sizes?: string[];
 
+  @IsOptional()
   @Transform(({ value }) => JSON.parse(value).map((x) => parseInt(x, 10)))
   @IsArray()
   @IsNumber({}, { each: true })
   @IsPositive({ each: true })
-  sizesStock: number[]; //This array contains respective stock for every size. Same length that sizes[]
+  sizesStock?: number[]; //This array contains respective stock for every size. Same length that sizes[]
 
+  @IsOptional()
   @Transform(({ value }) => JSON.parse(value))
   @IsArray()
   @IsString({ each: true })
-  colors: string[];
+  colors?: string[];
 
+  @IsOptional()
   @Transform(({ value }) => JSON.parse(value).map((x) => parseInt(x, 10)))
   @IsArray()
   @IsNumber({}, { each: true })
   @IsPositive({ each: true })
-  colorsStock: number[]; //This array contains respective stock for every color. Same length that colors[]
+  colorsStock?: number[]; //This array contains respective stock for every color. Same length that colors[]
 }

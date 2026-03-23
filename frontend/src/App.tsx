@@ -7,6 +7,7 @@ import CustomersPage from "./features/admin/customers/pages/CustomersPage"
 import CustomerPage from "./features/admin/customers/pages/CustomerPage"
 import AddProductPage from "./features/admin/products/pages/AddProductPage"
 import ProductTypePage from "./features/admin/productTypes/pages/ProductTypesPage"
+import ProductsPage from "./features/admin/products/pages/ProductsPage"
 
 function App() {
   return (
@@ -41,6 +42,15 @@ function App() {
         element={
           <AdminLayout>
             <CustomerPage />
+          </AdminLayout>
+        }
+      />
+
+      <Route
+        path="/admin/products"
+        element={
+          <AdminLayout>
+            <ProductsPage />
           </AdminLayout>
         }
       />

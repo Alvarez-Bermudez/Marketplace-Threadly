@@ -94,3 +94,16 @@ export interface ProductRequest {
   colors: string //Json string. String array
   colorsStock: number //Json string. This array contains respective stock for every color. Same length that colors[]
 }
+
+export interface ProductGetAll {
+  id: string
+  coverImage: string
+  name: string
+  price: number
+  discountPrice?: number | null
+  stock: number
+  orderNumber: number
+  category: string
+  ratingAverage: number
+  reviewCount: number
+}
