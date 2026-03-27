@@ -17,19 +17,12 @@ import Breadcrumbs from "../components/create-product/Breadcrumbs"
 import DropdownCategory from "../components/create-product/DropdownCategory"
 import DropdownBrand from "../components/create-product/DropdownBrand"
 import DropdownProductTypes from "../components/create-product/DropdownProductTypes"
-import BadgesSizesSelector from "../components/create-product/BadgesSizesSelector"
-import ColorsSelector from "../components/create-product/ColorSelector"
 import { createProduct } from "../api"
+import SizeSelector from "../components/create-product/SizesColorsSelector"
 
 //Note: use headers: {"Content-Type": "multipart/form-data"}
 const AddProductPage = () => {
   const [search, setSearch] = useState<string>("") //Unused but keept for ui reasons
-
-  const [sizes, setSizes] = useState<string[]>([])
-  const [sizesStock, setSizesStock] = useState<number[]>(new Array(6).fill(0)) //Array with a fixed total length. The values filled are gonna fill its relative position on the array. Before submit there's to remove empty fields. Remember the sizes and sizesStock's length must be the same value
-
-  const [colors, setColors] = useState<string[]>([])
-  const [colorsStock, setColorsStock] = useState<number[]>(new Array(30).fill(0)) //Array with a fixed total length, it assumes the max. The values filled are gonna fill its relative position on the array. Before submit there's to remove empty fields. Remember the colors and colorsStock's length must be the same value
 
   // useEffect(() => {
   //   console.log(colors)
@@ -91,18 +84,18 @@ const AddProductPage = () => {
       }
 
       //Pass sizes and sizesStock
-      const _sizesStock = sizesStock.filter((i) => i !== 0).map((i) => Math.abs(i)) //Remove the zeros. And avoid pass negative values, transforming them to positive
-      if (sizes.length == _sizesStock.length && sizes.length > 0) {
-        formData.append("sizes", JSON.stringify(sizes))
-        formData.append("sizesStock", JSON.stringify(_sizesStock))
-      }
+      // const _sizesStock = sizesStock.filter((i) => i !== 0).map((i) => Math.abs(i)) //Remove the zeros. And avoid pass negative values, transforming them to positive
+      // if (sizes.length == _sizesStock.length && sizes.length > 0) {
+      //   formData.append("sizes", JSON.stringify(sizes))
+      //   formData.append("sizesStock", JSON.stringify(_sizesStock))
+      // }
 
       //Pass colors and colorsStock
-      const _colorsStock = colorsStock.filter((i) => i !== 0).map((i) => Math.abs(i)) //Remove the zeros. And avoid pass negative values, transforming them to positive values
-      if (colors.length == _colorsStock.length && colors.length > 0) {
-        formData.append("colors", JSON.stringify(colors))
-        formData.append("colorsStock", JSON.stringify(_colorsStock))
-      }
+      // const _colorsStock = colorsStock.filter((i) => i !== 0).map((i) => Math.abs(i)) //Remove the zeros. And avoid pass negative values, transforming them to positive values
+      // if (colors.length == _colorsStock.length && colors.length > 0) {
+      //   formData.append("colors", JSON.stringify(colors))
+      //   formData.append("colorsStock", JSON.stringify(_colorsStock))
+      // }
 
       console.log(JSON.stringify(formData, null, 2))
       return createProduct(formData)
@@ -292,25 +285,7 @@ const AddProductPage = () => {
                   </div>
 
                   <div className="flex gap-6 w-full items-stretch">
-                    <div className="flex flex-col ">
-                      <p className="fieldset-legend text-xs">Sizes & Stocks:</p>
-                      <BadgesSizesSelector
-                        sizes={sizes}
-                        setSizes={setSizes}
-                        sizesStock={sizesStock}
-                        setSizesStock={setSizesStock}
-                      />
-                    </div>
-
-                    <div className="flex flex-col ">
-                      <p className="fieldset-legend text-xs">Colors:</p>
-                      <ColorsSelector
-                        setColors={setColors}
-                        colors={colors}
-                        setColorsStock={setColorsStock}
-                        colorsStock={colorsStock}
-                      />
-                    </div>
+                    <SizeSelector />
                   </div>
 
                   <div>

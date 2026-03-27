@@ -13,6 +13,7 @@
   --color-neutral-800: #585656;
   --color-neutral-900: #2E2E2E;
 
+  --color-primary-050: #DDD5FA;
   --color-primary-100: #B5A2F6;
   --color-primary-200: #A08BE5;
   --color-primary-300: #937FDC;
@@ -40,7 +41,9 @@
 
 
 @layer components {
-
+  .transition-basic{
+    @apply transition-all duration-300;
+  }
   .text-input{
     @apply w-full outline-none px-3.5 py-3 flex items-center placeholder-neutral-600 text-neutral-900 text-sm border border-neutral-200 rounded-sm;
   }
@@ -48,6 +51,7 @@
   .hover-transition{
     @apply hover:bg-neutral-100 transition-all duration-300;
   }
+
   
 }
 

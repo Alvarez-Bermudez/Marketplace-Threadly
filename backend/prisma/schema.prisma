@@ -50,7 +50,6 @@ model Product {
   description String?
   images      ProductImage[]
   sizes       ProductSize[]
-  colors      ProductColor[]
 
   ratingAverage Float    @default(0)
   reviewCount   Int      @default(0)
@@ -88,19 +87,19 @@ model ProductImage {
 }
 
 model ProductSize {
-  id        String  @id @default(uuid())
+  id        String         @id @default(uuid())
   size      String
-  stock     Int
+  colors    ProductColor[]
   productId String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ProductColor {
-  id        String  @id @default(uuid())
-  color     String
-  productId String
-  stock     Int
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id            String       @id @default(uuid())
+  color         String
+  stock         Int
+  productSize   ProductSize? @relation(fields: [productSizeId], references: [id], onDelete: Cascade)
+  productSizeId String?
 }
 
 model Review {

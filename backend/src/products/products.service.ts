@@ -146,15 +146,10 @@ export class ProductsService {
           sizes: {
             create: sizes,
           },
-
-          colors: {
-            create: colors,
-          },
         },
         include: {
           images: true,
           sizes: true,
-          colors: true,
         },
       });
 

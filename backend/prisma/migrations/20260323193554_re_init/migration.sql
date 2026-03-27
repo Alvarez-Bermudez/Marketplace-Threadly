@@ -16,15 +16,15 @@ CREATE TABLE "Product" (
     "price" REAL NOT NULL,
     "discountPrice" REAL,
     "stock" INTEGER NOT NULL,
-    "brandId" TEXT NOT NULL,
+    "brandId" TEXT,
     "categoryId" TEXT NOT NULL,
     "typeId" TEXT NOT NULL,
-    "details" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
+    "details" TEXT,
+    "description" TEXT,
     "ratingAverage" REAL NOT NULL DEFAULT 0,
     "reviewCount" INTEGER NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Product_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Product_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "Product_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Product_typeId_fkey" FOREIGN KEY ("typeId") REFERENCES "ProductType" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -60,7 +60,6 @@ CREATE TABLE "ProductImage" (
 CREATE TABLE "ProductSize" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "size" TEXT NOT NULL,
-    "stock" INTEGER NOT NULL,
     "productId" TEXT NOT NULL,
     CONSTRAINT "ProductSize_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -69,9 +68,9 @@ CREATE TABLE "ProductSize" (
 CREATE TABLE "ProductColor" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "color" TEXT NOT NULL,
-    "productId" TEXT NOT NULL,
     "stock" INTEGER NOT NULL,
-    CONSTRAINT "ProductColor_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "productSizeId" TEXT,
+    CONSTRAINT "ProductColor_productSizeId_fkey" FOREIGN KEY ("productSizeId") REFERENCES "ProductSize" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Injectable,
   InternalServerErrorException,
@@ -10,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Payload } from './types/payload.type';
+import { Role } from 'generated/prisma';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +31,8 @@ export class AuthService {
       },
     });
 
-    return user;
+    const { password, id, ..._user } = user;
+    return _user;
   }
 
   async login(dto: LoginDto) {
